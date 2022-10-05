@@ -1,5 +1,6 @@
 ./vscode
 /Data
 testRead.m
+test2.m
 *.mat
 *.asv
