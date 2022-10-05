@@ -98,12 +98,8 @@ while ~feof(fileID)
         % Convert to a number
         obsData = str2double([dataLine1;dataLine2]);
 
-        % Remove the loss of lock indicator
-        obsData(obsData < 10) = [];
-
-
-        % Store
-        currentData.GPSObservables(ii,:) = obsData';
+        % Extract message for the satellite in question
+        satStruct = matchRinexData(obsData,obsTypes)
 
     end
 

@@ -8,6 +8,7 @@ LLILim = 10;
 
 % C1 and P1 are duplicates and mess up the counting, remove them
 for ii = 1:length(obsTypes)-1
+    obsTypes
     arr1 = obsTypes{ii};
     arr2 = obsTypes{ii+1};
 
@@ -35,6 +36,9 @@ for ii = 1:length(obsTypes)
                     break
                 end
             end
+            if ~found
+                output.L1phase = 0;
+            end
 
         case 'L2'
             % Find the L2 phase in the data and remove it
@@ -44,6 +48,9 @@ for ii = 1:length(obsTypes)
                     found = 1;
                     break
                 end
+            end
+            if ~found
+                output.L2phase = 0;
             end
 
         case 'L5'
@@ -55,6 +62,9 @@ for ii = 1:length(obsTypes)
                     break
                 end
             end
+            if ~found
+                output.L5phase = 0;
+            end
 
         case {'C1','P1'}
             % Find the L1 psuedorange data and remove it
@@ -64,6 +74,9 @@ for ii = 1:length(obsTypes)
                     found = 1;
                     break
                 end
+            end
+            if ~found
+                output.L1psr  = 0;
             end
 
         case {'C2','P2'}
@@ -75,6 +88,9 @@ for ii = 1:length(obsTypes)
                     break
                 end
             end
+            if ~found
+                output.L2psr  = 0;
+            end
 
         case {'C5','P5'}
             % Find the L2 psuedorange data and remove it
@@ -84,6 +100,9 @@ for ii = 1:length(obsTypes)
                     found = 1;
                     break
                 end
+            end
+            if ~found
+                output.L5psr  = 0;
             end
 
         case 'S1'
@@ -95,6 +114,9 @@ for ii = 1:length(obsTypes)
                     break
                 end
             end
+            if ~found
+                output.L1SNR = 0;
+            end
 
         case 'S2'
             % Find the L1 SNR data and remove it
@@ -105,6 +127,9 @@ for ii = 1:length(obsTypes)
                     break
                 end
             end
+            if ~found
+                output.L2SNR = 0;
+            end
 
         case 'S5'
             % Find the L1 SNR data and remove it
@@ -114,6 +139,9 @@ for ii = 1:length(obsTypes)
                     found = 1;
                     break
                 end
+            end
+            if ~found
+                output.L5SNR = 0;
             end
 
         otherwise
