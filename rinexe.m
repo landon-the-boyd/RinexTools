@@ -13,6 +13,10 @@ function rinexe(ephemerFile, outputfile)
 % Adapted Landon Boyd
 % 2022/10/03
 
+% As far as I know, rinexe won't read the .YYg file that comes with a CORS
+% download (the GLONASS navigation data) so the output variable only
+% represents the GPS constellation
+
 % Units are either seconds, meters, or radians
 fileID = fopen(ephemerFile);
 head_lines = 0;
@@ -76,6 +80,8 @@ idot	= zeros(1,noeph);
 accuracy= zeros(1,noeph);
 health	= zeros(1,noeph);
 fit	    = zeros(1,noeph);
+IDOE    = zeros(1,noeph);
+iodc    = zeros(1,noeph);
 
 
 for i = 1:noeph
@@ -94,7 +100,7 @@ for i = 1:noeph
 
     % Line 2
     line = fgetl(fileID);
-    IODE        = line(4:22);
+    IODE(i)     = str2num(line(4:22));
     crs(i)      = str2num(line(23:41));
     deltan(i)   = str2num(line(42:60));
     M0(i)       = str2num(line(61:79));
@@ -132,7 +138,7 @@ for i = 1:noeph
     svaccur     = str2num(line(4:22));
     svhealth    = str2num(line(23:41));
     tgd(i)      = str2num(line(42:60));
-    iodc        = line(61:79);
+    iodc(i)     = str2num(line(61:79));
 
     % Line 8
     line = fgetl(fileID);	
@@ -145,27 +151,31 @@ end
 fclose(fileID);
 
 %  Description of variable eph.
+% I've modified this to fit the structure of data I use
 eph(1,:)  = svprn;
-eph(2,:)  = af2;
-eph(3,:)  = M0;
-eph(4,:)  = roota;
-eph(5,:)  = deltan;
-eph(6,:)  = ecc;
-eph(7,:)  = omega;
-eph(8,:)  = cuc;
-eph(9,:)  = cus;
-eph(10,:) = crc;
-eph(11,:) = crs;
-eph(12,:) = i0;
-eph(13,:) = idot;
+eph(2,:)  = af0;
+eph(3,:)  = af1;
+eph(4,:)  = af2;
+eph(5,:)  = IODE;
+eph(6,:)  = crs;
+eph(7,:)  = deltan;
+eph(8,:)  = M0;
+eph(9,:)  = cuc;
+eph(10,:) = ecc;
+eph(11,:) = cus;
+eph(12,:) = roota;
+eph(13,:) = toe;
 eph(14,:) = cic;
-eph(15,:) = cis;
-eph(16,:) = Omega0;
-eph(17,:) = Omegadot;
-eph(18,:) = toe;
-eph(19,:) = af0;
-eph(20,:) = af1;
-eph(21,:) = toe;
+eph(15,:) = Omega0;
+eph(16,:) = cis;
+eph(17,:) = i0;
+eph(18,:) = crc;
+eph(19,:) = omega;
+eph(20,:) = Omegadot;
+eph(21,:) = idot;
+eph(27,:) = tgd;
+eph(28,:) = iodc;
+eph(29,:) = 0;
 
 % Organize the ephemeris into a struct
 ephStruct = struct;
@@ -185,6 +195,32 @@ for ii = 1:size(eph,2)
 
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THIS LOOP IS OPTIONAL
+% For now I'm deciding to dump all ephemerides except for the first set.
+% This relies on the assumption that the CORS file you downloaded is less
+% that 4 hours long
+out = [];
+fieldList = fieldnames(ephStruct);
+for ii = 1:length(fieldList)
+
+    data = ephStruct.(fieldList{ii});
+    out(ii,:) = data(:,1);
+
+end
+
+% Make out into a table
+out = array2table(out,"VariableNames",{'prn','af0','af1','af2','IODE',...
+    'crs','deltan','M0','cuc','ecc','cus','A','toe','cic','omega0',...
+    'cis','i0','crc','omega','omegaDot','idot','L2Code','gpsWeek','L2P',...
+    'Accuracy','health','tgd','iodc','toc',});
+
+% Reformat
+clear ephStruct
+ephStruct = struct;
+ephStruct.ephem = out;
+
 % Save data in matlab file
-save(outputfile,"eph")
+save(outputfile,"ephStruct")
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
