@@ -167,6 +167,24 @@ eph(19,:) = af0;
 eph(20,:) = af1;
 eph(21,:) = toe;
 
+% Organize the ephemeris into a struct
+ephStruct = struct;
+satPresent = unique(eph(1,:));
+
+% Create a field for each satellite present
+for ii = 1:length(satPresent)
+    name = ("prn" + num2str(satPresent(ii)));
+    ephStruct.(name) = [];
+end
+
+for ii = 1:size(eph,2)
+    prn = eph(1,ii);
+    name = ("prn"+prn);
+
+    ephStruct.(name) = [ephStruct.(name),eph(:,ii)];
+
+end
+
 % Save data in matlab file
 save(outputfile,"eph")
 end

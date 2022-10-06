@@ -124,8 +124,9 @@ while ~feof(fileID)
     
     gnssData{count} = currentData;
     count = count + 1;
-    lineCount
+    lineCount;
 
 end
+gnssData = gnssData';
 
 end
