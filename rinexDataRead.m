@@ -1,12 +1,14 @@
 function gnssData = rinexDataRead(filename,obsTypes)
 
 fileID = fopen(filename,'r');
+lineCount = 0;
 
 % Count through header lines --K
 headerCount = 0;
 while 1
    headerCount = headerCount+1;
    epochHeaderLine1 = fgetl(fileID);
+   lineCount = lineCount + 1;
 
    if contains(epochHeaderLine1,"END OF HEADER")
        break;	
@@ -46,6 +48,13 @@ while ~feof(fileID)
 
     % Read in the epoch time and listed satellites
     epochHeaderLine1 = split(fgetl(fileID));
+    lineCount = lineCount + 1;
+
+    % Sometimes spurious lines just appear and we have to filter them out
+    while length(epochHeaderLine1) < 5 || contains(epochHeaderLine1{end},'COMMENT')
+        epochHeaderLine1 = split(fgetl(fileID));
+        lineCount = lineCount + 1;
+    end
 
     % All time values from epoch
     currentData.year = str2double(epochHeaderLine1{2});
@@ -67,6 +76,7 @@ while ~feof(fileID)
     % If more than 9 observables, must grab two lines instead of one
     if numSats > 9
         epochHeaderLine2 = split(fgetl(fileID));
+        lineCount = lineCount + 1;
 
         % Join our additional constellation data to what we already have
         constellation = [constellation,epochHeaderLine2{end}];
@@ -81,100 +91,41 @@ while ~feof(fileID)
     GLOTrue = ~isempty(satDescription.GLO);
     GALTrue = ~isempty(satDescription.GAL);
 
+    % Everything is temporarily stored
+    satData = [];
+
     % A primary assumption here is that the CORS file lists in order GPS,
     % GLONASS and then Galileo
     for ii = 1:length(satDescription.GPS)
-        % Get the two lines of data and parse
-        dataLine1 = split(fgetl(fileID));
-        dataLine2 = split(fgetl(fileID));
-
-        % For some reason the first element is always an empty character
-        % array. Also I dont knwo what the number at the beginning of the
-        % observation list is but I can use it later if I want it
-        dataLine1 = dataLine1(2:end);
-        dataLine2 = dataLine2(2:end);
-
-
-        % Convert to a number
-        obsData = str2double([dataLine1;dataLine2]);
-
-        % Extract message for the satellite in question
-        satStruct = matchRinexData(obsData,obsTypes)
+    
+        [satData(ii,:),lineCount] = readSatEopch(fileID,obsTypes,lineCount);
 
     end
+
+    currentData.GPSObservables = satData;
+    satData = [];
 
     for ii = 1:length(satDescription.GLO)
-        % Get the two lines of data and parse
-        dataLine1 = split(fgetl(fileID));
-        dataLine2 = split(fgetl(fileID));
 
-        % For some reason the first element is always an empty character
-        % array. Also I dont knwo what the number at the beginning of the
-        % observation list is but I can use it later if I want it
-        dataLine1 = dataLine1(2:end);
-        dataLine2 = dataLine2(2:end);
-
-
-        % Convert to a number
-        obsData = str2double([dataLine1;dataLine2]);
-
-        % Remove the loss of lock indicator
-        obsData(obsData < 10) = [];
-
-
-        % Store
-        currentData.GLOObservables(ii,:) = obsData';
+        [satData(ii,:),lineCount] = readSatEopch(fileID,obsTypes,lineCount);
 
     end
 
+    currentData.GLOObservables = satData;
+    satData = [];
 
+    for ii = 1:length(satDescription.GAL)
 
+        [satData(ii,:),lineCount] = readSatEopch(fileID,obsTypes,lineCount);
 
+    end
 
-%     % Store observables in a table later. The extra column is to store SV
-%     % PRN later on
-%     observables = zeros(length(svList),numFields+1);
-
-    
-
-
-%     % Count through all of the observables for each satellite in the epoch
-%     for ii = 1:numSats
-% 
-%         obsCount = 0    ;
-%         lineCount = 1   ;
-% 
-%         % Keep counting until we have all of the measurements we expect
-%         while obsCount < numFields
-% 
-%             % Get a line to read
-%             line = split(fgetl(fileID));
-% 
-%             % I'm not sure what the special number on the first line is but
-%             % I will know one day and then this part will have meaning
-%             if lineCount == 1
-%                 line{3} = '';
-%             end
-% 
-%             % Count through all nonzero elements in order based of obsTypes
-%             for jj = 1:length(line)
-% 
-%                 % If not an empty character vector or a letter then add to
-%                 % our data matrix
-%                 if ~(isempty(line{jj}))
-%                     observables(ii,obsCount+2) = str2double(line{jj});
-%                     obsCount = obsCount + 1;
-%                 end
-%             end
-% 
-%             lineCount = lineCount + 1;
-%     
-%         end
-%         currentData.observables = observables;
-%     end
+    currentData.GALObservables = satData;
     
     gnssData{count} = currentData;
-    count = count + 1
+    count = count + 1;
+    lineCount
+
 end
 
 end

@@ -8,7 +8,7 @@ LLILim = 10;
 
 % C1 and P1 are duplicates and mess up the counting, remove them
 for ii = 1:length(obsTypes)-1
-    obsTypes
+
     arr1 = obsTypes{ii};
     arr2 = obsTypes{ii+1};
 
@@ -31,117 +31,117 @@ for ii = 1:length(obsTypes)
             % Find the L1 phase in the data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= phaseLim) && (data(jj) >= codeLim)
-                    output.L1phase = data(jj);
+                    satStruct.L1phase = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L1phase = 0;
+                satStruct.L1phase = 0;
             end
 
         case 'L2'
             % Find the L2 phase in the data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= phaseLim) && (data(jj) >= codeLim)
-                    output.L2phase = data(jj);
+                    satStruct.L2phase = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L2phase = 0;
+                satStruct.L2phase = 0;
             end
 
         case 'L5'
             % Find the L5 phase in the data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= phaseLim) && (data(jj) >= codeLim)
-                    output.L5phase = data(jj);
+                    satStruct.L5phase = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L5phase = 0;
+                satStruct.L5phase = 0;
             end
 
         case {'C1','P1'}
             % Find the L1 psuedorange data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= codeLim) && (data(jj) >= SNRLim)
-                    output.L1psr = data(jj);
+                    satStruct.L1psr = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L1psr  = 0;
+                satStruct.L1psr  = 0;
             end
 
         case {'C2','P2'}
             % Find the L2 psuedorange data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= codeLim) && (data(jj) >= SNRLim)
-                    output.L2psr = data(jj);
+                    satStruct.L2psr = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L2psr  = 0;
+                satStruct.L2psr  = 0;
             end
 
         case {'C5','P5'}
             % Find the L2 psuedorange data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= codeLim) && (data(jj) >= SNRLim)
-                    output.L5psr = data(jj);
+                    satStruct.L5psr = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L5psr  = 0;
+                satStruct.L5psr  = 0;
             end
 
         case 'S1'
             % Find the L1 SNR data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= SNRLim) && (data(jj) >= LLILim)
-                    output.L1SNR = data(jj);
+                    satStruct.L1SNR = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L1SNR = 0;
+                satStruct.L1SNR = 0;
             end
 
         case 'S2'
             % Find the L1 SNR data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= SNRLim) && (data(jj) >= LLILim)
-                    output.L2SNR = data(jj)
+                    satStruct.L2SNR = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L2SNR = 0;
+                satStruct.L2SNR = 0;
             end
 
         case 'S5'
             % Find the L1 SNR data and remove it
             for jj = 1:length(data)
                 if (data(jj) <= SNRLim) && (data(jj) >= LLILim)
-                    output.L5SNR = data(jj)
+                    satStruct.L5SNR = data(jj);
                     found = 1;
                     break
                 end
             end
             if ~found
-                output.L5SNR = 0;
+                satStruct.L5SNR = 0;
             end
 
         otherwise
@@ -151,10 +151,14 @@ for ii = 1:length(obsTypes)
 
     % Delete entry we just processed if we found a match
     if found
-        data(jj) = [nan];
+        data(jj) = nan;
     end
 
 end
 
+% Convert output to a matrix so that it can be used in the outer function
+field = fieldnames(satStruct);
 
+for ii = 1:length(field)
+    output(ii) = satStruct.(field{ii});
 end
