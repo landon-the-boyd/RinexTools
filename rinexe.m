@@ -1,4 +1,4 @@
-function rinexe(ephemerFile, outputfile)
+function output = rinexe(ephemerFile)
 % RINEXE Reads a RINEX Navigation Message file and
 %	     reformats the data into a matrix with 21
 %	     rows and a column for each satellite.
@@ -220,7 +220,9 @@ clear ephStruct
 ephStruct = struct;
 ephStruct.ephem = out;
 
+output = ephStruct;
+
 % Save data in matlab file
-save(outputfile,"ephStruct")
+% save(outputfile,"ephStruct")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
