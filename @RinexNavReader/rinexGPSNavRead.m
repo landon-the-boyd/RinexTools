@@ -89,6 +89,7 @@ hour = str2double(data{1}(13:14));
 minute = str2double(data{1}(16:17));
 second = str2double(data{1}(19:22));
 epochEphem.time = datetime(year,month,day,hour,minute,second);
+epochEphem.TOC = GPSdatetime(epochEphem.time);
 
 % Satellite Clock Offset
 epochEphem.a0 = cast2double(data{1}(23:41));

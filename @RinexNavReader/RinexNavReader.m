@@ -23,6 +23,10 @@ classdef RinexNavReader < handle
         [ionoAlpha,ionoBeta,deltaUTC,leapSeconds,headerCount] = ...
             readGPSNavHeader(obj,fileID)
 
+        ephemeris = returnParameterSet(obj,time)
+
+        [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,ephemerisSet,transmitTime,transitTime);
+
     end
 
     methods(Static)
