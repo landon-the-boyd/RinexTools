@@ -162,3 +162,5 @@ field = fieldnames(satStruct);
 for ii = 1:length(field)
     output(ii) = satStruct.(field{ii});
 end
+
+end
