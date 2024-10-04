@@ -15,7 +15,7 @@ while 1
    end
 end
 
-% Try top predict how many entries we should be looking for. For the number
+% Try to predict how many entries we should be looking for. For the number
 % of claimed observables, it would appear that each band reduces this
 % number of actual entries in data by 1. I think this is because C1/P1 is
 % listed as a single entry
