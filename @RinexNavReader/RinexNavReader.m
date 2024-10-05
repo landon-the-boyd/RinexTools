@@ -34,19 +34,9 @@ classdef RinexNavReader < handle
 
         loadObsData(obj,filename)
 
-    end
-
-    methods(Static)
-
-        % Rinex Observation Message. I don't intend to add any
-        % functionality to observation data other than to give it over to
-        % the user, but I want it to be packaged nearby my ephemeris
-        % parsing code so I've placed it in here
-        
+        [observables,satPos,satVel,satClock,TOW,time,satsInView] = returnEpoch(obj,index)
 
     end
-
-
 
 
 end
