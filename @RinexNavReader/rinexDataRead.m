@@ -17,23 +17,6 @@ while 1
     end
 end
 
-% Try to predict how many entries we should be looking for. For the number
-% of claimed observables, it would appear that each band reduces this
-% number of actual entries in data by 1. I think this is because C1/P1 is
-% listed as a single entry
-
-% Alternate approach, just count three extra fields for each band (carrier, rangea and signal strength)
-numFields = 0;%length(obsTypes);
-if ismember("L1",obsTypes)
-    numFields = numFields + 3;
-end
-if ismember("L2",obsTypes)
-    numFields = numFields + 3;
-end
-if ismember("L5",obsTypes)
-    numFields = numFields  + 3;
-end
-
 gnssData = {};
 count = 1;
 
@@ -66,17 +49,24 @@ while ~feof(fileID)
     currentData.minute = str2double(epochHeaderLine1{6});
     currentData.second = str2double(epochHeaderLine1{7});
 
-    % Second element is number of observables. It is the first two
-    % characters of the last element in the epochHeaderLine
+    % Either 1, 2 or 3 characters for number of satellites. This code is
+    % wonky, but is a consequence of choosing to build this whole library
+    % on the >>split command
     numSats = epochHeaderLine1{end};
-    numSats = str2double(numSats(1:2));
+    if ~isnan(str2double(numSats(1:3)))
+        numSats = str2double(numSats(1:3));
+    elseif ~isnan(str2double(numSats(1:2)))
+        numSats = str2double(numSats(1:2));
+    else
+        numSats = str2double(numSats(1));
+    end
 
     % Constellation description is the last element of the array, and is
     % possibly continues on the next line
     constellation = epochHeaderLine1{end};
 
-    % If more than 9 observables, must grab two lines instead of one
-    if numSats > 9
+    % If more than 12 satellites, must grab two lines instead of one
+    if numSats > 12
         epochHeaderLine2 = split(fgetl(fileID));
         lineCount = lineCount + 1;
 
@@ -85,7 +75,7 @@ while ~feof(fileID)
     end
 
     % Read in the constellation term and save
-    satDescription = readConstellation(constellation);
+    satDescription = readConstellation(numSats,constellation);
     currentData.constellation = satDescription;
 
     % Set flags
@@ -100,7 +90,7 @@ while ~feof(fileID)
     % GLONASS and then Galileo
     for ii = 1:length(satDescription.GPS)
 
-        [satData(ii,:),lineCount] = readSatEopch(fileID,obsTypes,lineCount);
+        [satData(ii,:),lineCount] = readSatEpoch(fileID,obsTypes,lineCount);
 
     end
 
@@ -216,13 +206,6 @@ newData = data; % add on to this
 % Iterate through line
 for ii = 1:length(dataCells)
 
-    % % Check for end of line and for empty entries and number of
-    % % signals. We don't want any of those...
-    % if ~(isempty(dataCells{ii})) && ...
-    %         (isnan(str2double(dataCells{ii})))
-    %     newData{end+1} = dataCells{ii};
-    % end
-
     % Changing this to a switch statement. Currently only supporting GPS on
     % L1 and L2. Eventually each of these could potentially trigger
     % different response which is why I've put them in a switch
@@ -250,7 +233,7 @@ end
 
 end
 
-function output = readConstellation(input)
+function output = readConstellation(numSats,input)
 % readConstellation.m is a MATLAB function to read the constellation
 % identifying string in a RINEX 2.11 file and output the types and numbers
 % of satellites present in the file
@@ -267,9 +250,13 @@ output.GPS = [];
 output.GLO = [];
 output.GAL = [];
 
-% Read the number of satellites and erase
-numSats = str2double(input(1:2));
-input = input(3:end);
+if numSats > 99
+    input = input(4:end);
+elseif numSats > 9
+    input = input(3:end);
+else
+    input = input(2:end);
+end
 
 for ii = 1:numSats
 
@@ -294,6 +281,44 @@ end
 
 end
 
+function [epochData,lineCount] = readSatEpoch(fileID,obsTypes,lineCount)
+% This function reads the observables from a single satellite out of the
+% field of the Rinex observation file. The older version made some
+% assumptions that caused it to break on some types of files, so this one
+% is hopefully more robust
+% Landon Boyd
+% 10/05/2024
+
+if length(obsTypes) > 5
+    obsData = [fgetl(fileID),fgetl(fileID)];
+    lineCount = lineCount + 2;
+else
+    obsData = fgetl(fileID);
+    lineCount = lineCount + 1;
+end
+
+epochData = str2double(split(obsData));
+
+% For some reason, some observables have an integer after them and I'm
+% dubious as to whether thats an LLI flag or a signal strength indicator.
+% Either way I'm removing it for now and if I need it later this is where
+% it can be found
+
+for ii = 1:length(epochData)
+    if ((epochData(ii) < 11))
+        epochData(ii) = nan;
+    end
+end
+
+epochData(isnan(epochData)) = [];
+
+if length(epochData) ~= length(obsTypes)
+    warning("Observation mismatch has occured, possible error in RINEX file")
+    epochData = nan(1,length(obsTypes));
+end
+
+
+end
 
 function [epochData,lineCount] = readSatEopch(fileID, obsTypes,lineCount)
 
