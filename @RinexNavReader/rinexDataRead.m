@@ -1,4 +1,4 @@
-function rinexData = rinexDataRead(filename)
+function rinexData = rinexDataRead(obj,filename)
 
 [obsTypes, antHEN] = anheader(filename);
 

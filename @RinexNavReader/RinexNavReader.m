@@ -8,6 +8,8 @@ classdef RinexNavReader < handle
     
         ephemerisData
         ephemerisTimeTable
+        obsData
+        obsTimeTable
     
     end
 
@@ -27,6 +29,11 @@ classdef RinexNavReader < handle
 
         [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,ephemerisSet,transmitTime,transitTime);
 
+        % Methods for handling observation data files
+        gnssData = rinexDataRead(obj,filename)
+
+        loadObsData(obj,filename)
+
     end
 
     methods(Static)
@@ -35,7 +42,7 @@ classdef RinexNavReader < handle
         % functionality to observation data other than to give it over to
         % the user, but I want it to be packaged nearby my ephemeris
         % parsing code so I've placed it in here
-        gnssData = rinexDataRead(filename)
+        
 
     end
 
