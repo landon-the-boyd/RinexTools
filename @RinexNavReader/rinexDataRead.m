@@ -1,4 +1,4 @@
-function gnssData = rinexDataRead(filename)
+function rinexData = rinexDataRead(filename)
 
 [obsTypes, antHEN] = anheader(filename);
 
@@ -12,11 +12,20 @@ while 1
     epochHeaderLine1 = fgetl(fileID);
     lineCount = lineCount + 1;
 
+    if contains(epochHeaderLine1,"APPROX POSITION XYZ")
+        antennaPos = str2double(split(epochHeaderLine1));
+        antennaPos = antennaPos(2:4);
+    end
+
     if contains(epochHeaderLine1,"END OF HEADER")
         break;
     end
 end
 
+rinexData = struct;
+rinexData.antPos = antennaPos;
+rinexData.antHEN = antHEN;
+rinexData.obsTypes = obsTypes;
 gnssData = {};
 count = 1;
 
@@ -24,7 +33,6 @@ while ~feof(fileID)
 
     % Arrange data in a cell of structs
     currentData = struct;
-    currentData.obsTypes = obsTypes;
 
     % Storage for observables later
     currentData.GPSObservables = [];
@@ -42,12 +50,14 @@ while ~feof(fileID)
     end
 
     % All time values from epoch
-    currentData.year = str2double(epochHeaderLine1{2});
-    currentData.month = str2double(epochHeaderLine1{3});
-    currentData.day = str2double(epochHeaderLine1{4});
-    currentData.hour = str2double(epochHeaderLine1{5});
-    currentData.minute = str2double(epochHeaderLine1{6});
-    currentData.second = str2double(epochHeaderLine1{7});
+    year = 2000 + str2double(epochHeaderLine1{2});
+    month = str2double(epochHeaderLine1{3});
+    day = str2double(epochHeaderLine1{4});
+    hour = str2double(epochHeaderLine1{5});
+    minute = str2double(epochHeaderLine1{6});
+    second = str2double(epochHeaderLine1{7});
+    currentData.time = datetime(year,month,day,hour,minute,second);
+    currentData.TOW = GPSdatetime(datetime(year,month,day,hour,minute,second));
 
     % Either 1, 2 or 3 characters for number of satellites. This code is
     % wonky, but is a consequence of choosing to build this whole library
@@ -61,7 +71,7 @@ while ~feof(fileID)
         numSats = str2double(numSats(1));
     end
 
-    % Constellation description is the last element of the array, and is
+    % Constellation description is the last element of the array, and
     % possibly continues on the next line
     constellation = epochHeaderLine1{end};
 
@@ -119,7 +129,16 @@ while ~feof(fileID)
     lineCount;
 
 end
-gnssData = gnssData';
+
+% I want the vector of times to be available outside the data structures
+obsTimes = NaT(length(gnssData),1);
+
+for ii = 1:length(gnssData)
+    obsTimes(ii) = gnssData{ii}.time;
+end
+
+rinexData.gnssData = gnssData';
+rinexData.obsTimes = obsTimes;
 
 end
 
