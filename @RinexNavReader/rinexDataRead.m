@@ -216,12 +216,36 @@ newData = data; % add on to this
 % Iterate through line
 for ii = 1:length(dataCells)
 
-    % Check for end of line and for empty entries and number of
-    % signals. We don't want any of those...
-    if ~(isempty(dataCells{ii})) && ...
-            (isnan(str2double(dataCells{ii})))
-        newData{end+1} = dataCells{ii};
+    % % Check for end of line and for empty entries and number of
+    % % signals. We don't want any of those...
+    % if ~(isempty(dataCells{ii})) && ...
+    %         (isnan(str2double(dataCells{ii})))
+    %     newData{end+1} = dataCells{ii};
+    % end
+
+    % Changing this to a switch statement. Currently only supporting GPS on
+    % L1 and L2. Eventually each of these could potentially trigger
+    % different response which is why I've put them in a switch
+    switch dataCells{ii}
+        case 'C1'
+            newData{end+1} = dataCells{ii};
+        case 'C2'
+            newData{end+1} = dataCells{ii};
+        case 'L1'
+            newData{end+1} = dataCells{ii};
+        case 'L2'
+            newData{end+1} = dataCells{ii};
+        case 'S1'
+            newData{end+1} = dataCells{ii};
+        case 'S2'
+            newData{end+1} = dataCells{ii};
+        case 'D1'
+            newData{end+1} = dataCells{ii};
+        case 'D2'
+            newData{end+1} = dataCells{ii};
+        otherwise
     end
+
 end
 
 end
