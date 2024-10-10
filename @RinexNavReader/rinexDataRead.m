@@ -62,6 +62,7 @@ while ~feof(fileID)
     % Either 1, 2 or 3 characters for number of satellites. This code is
     % wonky, but is a consequence of choosing to build this whole library
     % on the >>split command
+    % lineCount
     numSats = epochHeaderLine1{end};
     if ~isnan(str2double(numSats(1:3)))
         numSats = str2double(numSats(1:3));
@@ -331,6 +332,17 @@ end
 
 epochData(isnan(epochData)) = [];
 
+% This is a really bad way to fix the problem, but essentially some of the
+% RINEX files claim extra code phase observables for the P code on L1 and
+% L2, but then only give one extra observable on only some satellites. My
+% quick and dirty fix is just to take the first two pseudoranges given for
+% L1 and L2, because I think that it is always printing the civilian ranges
+% first.
+if length(epochData) > length(obsTypes)
+    psrIdx = find(epochData > 1e6 & epochData < 5e7);
+    epochData(psrIdx(end)) = [];
+end
+
 if length(epochData) ~= length(obsTypes)
     warning("Observation mismatch has occured, possible error in RINEX file")
     epochData = nan(1,length(obsTypes));
@@ -338,6 +350,13 @@ end
 
 
 end
+
+
+
+
+
+
+
 
 function [epochData,lineCount] = readSatEopch(fileID, obsTypes,lineCount)
 
@@ -360,6 +379,7 @@ obsData = str2double([dataLine1;dataLine2]);
 epochData = matchRinexData(obsData,obsTypes);
 
 end
+
 
 function output = matchRinexData(data,obsTypes)
 

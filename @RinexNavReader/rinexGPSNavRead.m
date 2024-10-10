@@ -99,8 +99,8 @@ epochEphem.a2 = cast2double(data{1}(61:end));
 % Line 2
 epochEphem.IODE = cast2double(data{2}(1:22));
 epochEphem.Crs = cast2double(data{2}(23:41));
-epochEphem.deltaN = cast2double(data{2}(42:60));
-epochEphem.M0 = cast2double(data{2}(61:end));
+epochEphem.deltaN = rad2semicirc(cast2double(data{2}(42:60)));
+epochEphem.M0 = rad2semicirc(cast2double(data{2}(61:end)));
 
 % Line 3
 epochEphem.Cuc = cast2double(data{3}(1:22));
@@ -111,17 +111,17 @@ epochEphem.sqrtA = cast2double(data{3}(61:end));
 % Line 4
 epochEphem.TOE = cast2double(data{4}(1:22));
 epochEphem.Cic = cast2double(data{4}(23:41));
-epochEphem.OMEGA = cast2double(data{4}(42:60));
+epochEphem.OMEGA = rad2semicirc(cast2double(data{4}(42:60)));
 epochEphem.Cis = cast2double(data{4}(61:end));
 
 % Line 5
-epochEphem.i0 = cast2double(data{5}(1:22));
+epochEphem.i0 = rad2semicirc(cast2double(data{5}(1:22)));
 epochEphem.Crc = cast2double(data{5}(23:41));
-epochEphem.omega = cast2double(data{5}(42:60));
-epochEphem.OMEGADOT = cast2double(data{5}(61:end));
+epochEphem.omega = rad2semicirc(cast2double(data{5}(42:60)));
+epochEphem.OMEGADOT = rad2semicirc(cast2double(data{5}(61:end)));
 
 % Line 6
-epochEphem.iDot = cast2double(data{6}(1:22));
+epochEphem.iDot = rad2semicirc(cast2double(data{6}(1:22)));
 epochEphem.L2Code = cast2double(data{6}(23:41));
 epochEphem.week = cast2double(data{6}(42:60));
 epochEphem.L2P = cast2double(data{6}(61:end));
@@ -146,3 +146,12 @@ doubleNum = str2double(number);
 
 end
 
+function output = rad2semicirc(input)
+% My GPS Ephemeris calculation function doesn't match the angular units
+% from the RINEX file
+% Landon Boyd
+% 10/10/2024
+
+output = input / pi;
+
+end
