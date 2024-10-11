@@ -27,7 +27,7 @@ M_0                 =ephemerisSet.M0;
 e                   =ephemerisSet.e;
 sqrt_A              =ephemerisSet.sqrtA; % If you're here wondering why your satellite positions are wrong, it is probably this
 t_oe                =ephemerisSet.TOE;
-Omega_0             =ephemerisSet.OMEGA;
+Omega_0             =ephemerisSet.OMEGA_0;
 i_0                 =ephemerisSet.i0;
 omega               =ephemerisSet.omega;
 dot_Omega           =ephemerisSet.OMEGADOT;
@@ -60,12 +60,12 @@ a   = sqrt_A*sqrt_A;
 tk  = check_t(time - t_oe);
 
 %Initial mean motion
-n0  = sqrt(GM / a^3);
+n0  = sqrt(GM / (a^3));
 %Mean motion
 n   = n0 + Delta_n;
 
 %Mean anomaly
-M   = M_0 + n * tk;
+M   = M_0 + (n * tk);
 
 %Reduce mean anomaly to between 0 and 360 deg
 M   = rem(M + 2*gpsPi, 2*gpsPi);

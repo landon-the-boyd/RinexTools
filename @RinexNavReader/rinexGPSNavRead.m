@@ -111,7 +111,7 @@ epochEphem.sqrtA = cast2double(data{3}(61:end));
 % Line 4
 epochEphem.TOE = cast2double(data{4}(1:22));
 epochEphem.Cic = cast2double(data{4}(23:41));
-epochEphem.OMEGA = rad2semicirc(cast2double(data{4}(42:60)));
+epochEphem.OMEGA_0 = rad2semicirc(cast2double(data{4}(42:60)));
 epochEphem.Cis = cast2double(data{4}(61:end));
 
 % Line 5
@@ -133,8 +133,37 @@ epochEphem.TGD = cast2double(data{7}(42:60));
 epochEphem.IODC = cast2double(data{7}(61:end));
 
 % Line 8
-epochEphem.transmissionTime = cast2double(data{7}(1:22));
-epochEphem.fitInterval = cast2double(data{7}(23:41));
+if length(data{8}) > 21
+    epochEphem.transmissionTime = cast2double(data{8}(1:22));
+else
+    epochEphem.transmissionTime = nan;
+end
+if length(data{8}) > 40
+    epochEphem.fitInterval = cast2double(data{8}(23:41));
+else 
+    epochEphem.fitInterval = nan;
+end
+
+% Check orbital parameters with given ranges
+if (epochEphem.e > 0.03 || epochEphem.e < 0)
+    warning("Invalid Eccentricity Value in RINEX File")
+    epochEphem.e = nan;
+end
+
+if (epochEphem.sqrtA > 8192 || epochEphem.sqrtA < 2530)
+    warning("Invalid Semi-Major Axis Value in RINEX File")
+    epochEphem.sqrtA = nan;
+end
+
+if (epochEphem.TOE > 604784 || epochEphem.TOE < 0)
+    warning("Invalid Time Of Ephemeris Value in RINEX File")
+    epochEphem.TOE = nan;
+end
+
+if (epochEphem.OMEGADOT > 0 || epochEphem.OMEGADOT < -6.33e-7)
+    warning("Invalid Omega Dot Value in RINEX File")
+    epochEphem.OMEGADOT = nan;
+end
 
 end
 
@@ -152,6 +181,7 @@ function output = rad2semicirc(input)
 % Landon Boyd
 % 10/10/2024
 
-output = input / pi;
+% output = input / pi;
+output = input;
 
 end

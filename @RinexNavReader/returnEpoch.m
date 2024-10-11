@@ -16,12 +16,7 @@ satClock = nan(length(satsInView),1);
 
 for ii = 1:length(satsInView)
     [satPos(ii,:),satVel(ii,:),satClock(ii)] = ...
-        obj.GPSEphemerisCalculation(ephemerisSet{satsInView(ii)},TOW,TOW-0.07);
+        obj.GPSEphemerisCalculation(ephemerisSet{satsInView(ii)},TOW-0.07,0.07);
 end
-
-
-
-
-
 
 end
