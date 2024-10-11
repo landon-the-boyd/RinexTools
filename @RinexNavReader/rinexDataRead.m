@@ -57,7 +57,7 @@ while ~feof(fileID)
     minute = str2double(epochHeaderLine1{6});
     second = str2double(epochHeaderLine1{7});
     currentData.time = datetime(year,month,day,hour,minute,second);
-    currentData.TOW = GPSdatetime(datetime(year,month,day,hour,minute,second));
+    currentData.TOW = calcTOW(datetime(year,month,day,hour,minute,second));
 
     % Either 1, 2 or 3 characters for number of satellites. This code is
     % wonky, but is a consequence of choosing to build this whole library
@@ -344,7 +344,7 @@ if length(epochData) > length(obsTypes)
 end
 
 if length(epochData) ~= length(obsTypes)
-    warning("Observation mismatch has occured, possible error in RINEX file")
+    % warning("Observation mismatch has occured, possible error in RINEX file")
     epochData = nan(1,length(obsTypes));
 end
 
@@ -547,3 +547,13 @@ for ii = 1:length(field)
 end
 
 end
+
+function weekSeconds = calcTOW(time)
+
+% Get most recent start of week
+time = datetime(time,"TimeZone","UTC");
+startOfWeek = dateshift(time - timeofday(time),"dayofweek","Sunday","previous");
+weekSeconds = seconds(time-startOfWeek);
+
+end
+

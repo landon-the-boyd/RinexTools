@@ -89,7 +89,8 @@ hour = str2double(data{1}(13:14));
 minute = str2double(data{1}(16:17));
 second = str2double(data{1}(19:22));
 epochEphem.time = datetime(year,month,day,hour,minute,second);
-epochEphem.TOC = GPSdatetime(epochEphem.time);
+% epochEphem.TOC = GPSdatetime(epochEphem.time,'LeapSecond',18);
+epochEphem.TOC = calcTOW(epochEphem.time);
 
 % Satellite Clock Offset
 epochEphem.a0 = cast2double(data{1}(23:41));
@@ -183,5 +184,14 @@ function output = rad2semicirc(input)
 
 % output = input / pi;
 output = input;
+
+end
+
+function weekSeconds = calcTOW(time)
+
+% Get most recent start of week
+time = datetime(time,"TimeZone","UTC");
+startOfWeek = dateshift(time - timeofday(time),"dayofweek","Sunday","previous");
+weekSeconds = seconds(time-startOfWeek);
 
 end
