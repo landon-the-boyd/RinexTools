@@ -34,7 +34,12 @@ classdef RinexNavReader < handle
 
         loadObsData(obj,filename)
 
+        dopplerMeasurements(obj)
+
         [observables,satPos,satVel,satClock,TOW,time,satsInView] = returnEpoch(obj,index)
+
+        % Ionosphere
+        delays = klobucharModel(obj,time,satPos)
 
     end
 
