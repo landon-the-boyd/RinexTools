@@ -6,7 +6,7 @@ function loadGPSObsData(obj,filename)
 % 10/05/2024
 % Updated 10/24/2024
 
-obj.obsData = rinexGPSObsRead(obj,filename);
+obj.rinexGPSObsRead(filename);
 
 % Create lookup table here
 

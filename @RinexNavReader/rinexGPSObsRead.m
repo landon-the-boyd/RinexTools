@@ -1,4 +1,4 @@
-function rinexData = rinexGPSObsRead(obj,filename)
+function rinexGPSObsRead(obj,filename)
 
 [obsTypes, antHEN] = anheader(filename);
 
@@ -140,6 +140,8 @@ end
 
 rinexData.gnssData = gnssData';
 rinexData.obsTimes = obsTimes;
+
+obj.obsData = rinexData;
 
 end
 

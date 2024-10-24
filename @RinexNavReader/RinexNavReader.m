@@ -19,23 +19,24 @@ classdef RinexNavReader < handle
         loadGPSNavData(obj,filename)
         loadGPSObsData(obj,filename)
 
-        % Primary Handles the user will call for information
-        ephemeris = returnParameterSet(obj,time)
+        % Methods to insert new observables into the record
         dopplerMeasurements(obj)
-        [observables,satPos,satVel,satClock,TOW,time,satsInView] = returnEpoch(obj,index)
+
+        % Primary Handles the user will call for information
+        ephemeris =                returnGPSEphem(obj,time)
+        [observables,satPos,satVel,satClock,...
+            TOW,time,satsInView] = returnGPSObs(obj,index)
 
     end
 
     methods(Access=protected,Hidden)
     
-        % This method kicks off all ephemeris loading and managing
+        % Under the hood rinex reading
         rinexGPSNavRead(obj,filename)
+        rinexGPSObsRead(obj,filename)
 
         [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,ephemerisSet,transmitTime,transitTime);
-
-        % Methods for handling observation data files
-        gnssData = rinexGPSObsRead(obj,filename)
-
+        
         % Ionosphere
         delays = klobucharModel(obj,time,satPos)
 

@@ -1,4 +1,4 @@
-function ephemeris = returnParameterSet(obj,time)
+function ephemeris = returnGPSEphem(obj,time)
 % Function to take a datetime object and return the most recent ephemeris
 % for all satellites
 % Landon Boyd 10/04/2024
