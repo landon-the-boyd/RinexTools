@@ -1,4 +1,4 @@
-function navData = rinexGPSNavRead(obj,filename)
+function rinexGPSNavRead(obj,filename)
 % Function to read the GPS navigation rinex file to extract ephemeris
 % Landon Boyd
 % 10/04/2024
@@ -7,7 +7,7 @@ fileID = fopen(filename,'r');
 
 % Read header
 [ionoAlpha,ionoBeta,deltaUTC,leapSeconds,headerCount] = ...
-    obj.readGPSNavHeader(fileID);
+    readGPSNavHeader(fileID);
 
 % Read ephemeris message. Best I can tell, the CORS data reports new
 % ephemeris as soon as it is available -> every 2 hours
@@ -33,6 +33,9 @@ navData = struct;
 navData.ephemeris = messageEphemeris;
 navData.ionoAlpha = ionoAlpha;
 navData.ionoBeta = ionoBeta;
+
+% Assign to object
+obj.ephemerisData = navData;
 
 end
 
@@ -164,6 +167,50 @@ end
 if (epochEphem.OMEGADOT > 0 || epochEphem.OMEGADOT < -6.33e-7)
     warning("Invalid Omega Dot Value in RINEX File")
     epochEphem.OMEGADOT = nan;
+end
+
+end
+
+function [ionoAlpha,ionoBeta,deltaUTC,leapSeconds,headerCount] = ...
+            readGPSNavHeader(fileID)
+% Function to read the information from the header that I care about
+% Landon Boyd
+% 10/04/2024
+
+line = fgetl(fileID);
+label = line(61:80);
+headerCount = 1;
+
+ionoAlpha = [0,0,0];
+ionoBeta = [0,0,0];
+deltaUTC = [0,0,0,0];
+leapSeconds = 0;
+
+while label ~= "END OF HEADER"
+
+
+    line = fgetl(fileID);
+    label = line(61:end);
+    headerCount = headerCount + 1;
+
+    switch label
+        case "ION ALPHA"
+            alphaText = {line(1:16),line(17:27),line(28:39),line(40:54)};
+            for ii = 1:4
+                ionoAlpha(ii) = cast2double(alphaText{ii});
+            end
+        case "ION BETA"
+            betaText = {line(1:16),line(17:27),line(28:39),line(40:54)};
+            for ii = 1:4
+                ionoBeta(ii)= cast2double(betaText{ii});
+            end
+        case "DELTA-UTC: A0,A1,T,W"
+            warning("No Delta UTC Definition")
+        case "LEAP SECONDS"
+            warning("No Leap Second Definition");
+        otherwise
+    end
+
 end
 
 end

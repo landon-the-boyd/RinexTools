@@ -13,30 +13,23 @@ classdef RinexNavReader < handle
     
     end
 
-    methods
-    
-        % Methods for if you intend to use the object as an ephemeris data
-        % manager
+    methods(Access=public)
         loadGPSNavData(obj,filename)
-
-        % Rinex Navigation Message
-        ephemerisData = rinexGPSNavRead(obj,filename)
-
-        [ionoAlpha,ionoBeta,deltaUTC,leapSeconds,headerCount] = ...
-            readGPSNavHeader(obj,fileID)
-
         ephemeris = returnParameterSet(obj,time)
+        loadObsData(obj,filename)
+        dopplerMeasurements(obj)
+        [observables,satPos,satVel,satClock,TOW,time,satsInView] = returnEpoch(obj,index)
+    end
+
+    methods(Access=protected,Hidden)
+    
+        % This method kicks off all ephemeris loading and managing
+        rinexGPSNavRead(obj,filename)
 
         [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,ephemerisSet,transmitTime,transitTime);
 
         % Methods for handling observation data files
         gnssData = rinexDataRead(obj,filename)
-
-        loadObsData(obj,filename)
-
-        dopplerMeasurements(obj)
-
-        [observables,satPos,satVel,satClock,TOW,time,satsInView] = returnEpoch(obj,index)
 
         % Ionosphere
         delays = klobucharModel(obj,time,satPos)

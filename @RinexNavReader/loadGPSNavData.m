@@ -3,7 +3,7 @@ function loadGPSNavData(obj,filename)
 % a matrix of ephemeris issue times so that the correct parameter set can
 % be looked up efficiently
 
-obj.ephemerisData = rinexGPSNavRead(obj,filename);
+obj.rinexGPSNavRead(filename);
 
 % To increase efficiency, I'm building a table of ephemeris set times here
 % so that they can be looked up quickly
