@@ -28,6 +28,10 @@ classdef RinexNavReader < handle
         [observables,satPos,satVel,satClock,...
             TOW,time,satsInView] = returnGPSObs(obj,index)
 
+        % For some applications, it's nice just to call this directly
+        [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,...
+            ephemerisSet,transmitTime,transitTime);
+
     end
 
     methods(Access=protected,Hidden)
@@ -35,12 +39,6 @@ classdef RinexNavReader < handle
         % Under the hood rinex reading
         rinexGPSNavRead(obj,filename)
         rinexGPSObsRead(obj,filename)
-
-        [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,...
-            ephemerisSet,transmitTime,transitTime);
-        
-        % Ionosphere
-        delays = klobucharModel(obj,time,satPos)
 
     end
 
