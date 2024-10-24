@@ -1,6 +1,7 @@
 % Manager for Rinex Navigation Message data
 % Landon Boyd
 % 10/04/2024
+% Updated 10/24/2024
 
 classdef RinexNavReader < handle
 
@@ -35,7 +36,8 @@ classdef RinexNavReader < handle
         rinexGPSNavRead(obj,filename)
         rinexGPSObsRead(obj,filename)
 
-        [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,ephemerisSet,transmitTime,transitTime);
+        [satPos,satVel,satClock] = GPSEphemerisCalculation(obj,...
+            ephemerisSet,transmitTime,transitTime);
         
         % Ionosphere
         delays = klobucharModel(obj,time,satPos)

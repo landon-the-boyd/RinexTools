@@ -8,6 +8,8 @@ function loadGPSObsData(obj,filename)
 
 obj.rinexGPSObsRead(filename);
 
-% Create lookup table here
+% Create lookup table here. One element for each satellite in the GPS
+% constellation.
+obj.obsTimeTable = NaT(size(obj.obsData.gnssData,1),32);
 
 end
