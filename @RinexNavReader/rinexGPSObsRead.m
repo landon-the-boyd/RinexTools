@@ -1,4 +1,4 @@
-function rinexData = rinexDataRead(obj,filename)
+function rinexData = rinexGPSObsRead(obj,filename)
 
 [obsTypes, antHEN] = anheader(filename);
 
