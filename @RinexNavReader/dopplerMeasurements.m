@@ -76,8 +76,6 @@ for ii = 1:numEpochs-1 % Doppler is forward differenced
     newObs = [obj.obsData.gnssData{ii}.GPSObservables,dopplerShift];
     obj.obsData.gnssData{ii}.GPSObservables = newObs;
 
-    ii
-
 end
 
 end
